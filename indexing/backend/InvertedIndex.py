@@ -81,3 +81,11 @@ class InvertedIndex:
                 self.add(docItem)
         self.saveIndex()
         self.saveDocument()
+
+if __name__ == "__main__":
+    inputFile = "PlacesResults.json"
+    indexFile = "PlacesIndex.json"
+    documentFile = "PlacesDoc.json"
+
+    invIndex = InvertedIndex(inputFile, indexFile, documentFile)
+    invIndex.buildIndex()

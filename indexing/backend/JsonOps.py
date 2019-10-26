@@ -1,8 +1,9 @@
 import json
-from backend.ReviewDocument import DocumentItem, DocumentCollection
+from collections import defaultdict
+from indexing.backend.ReviewDocument import DocumentItem
 
 """parse the review documents into documentItems"""
-class JsonParser:
+class JsonDocParser:
     def __init__(self, filename):
         self.filename = filename
         self.doc_list = []
@@ -35,4 +36,19 @@ class JsonParser:
             # I guess we could add some filter here for the "time" attribute
 
         self.doc_idx += 1
-        return DocumentItem(item_key, item_name, item_address, item_text)
+        return DocumentItem(self.doc_idx-1, item_key, item_name, item_address, item_text)
+
+"""Parse the index document and load it to memory"""
+class JsonIndexParser:
+    def __init__(self, indexFile, docFile):
+        self.indexFile = indexFile
+        self.docFile = docFile
+
+        self.rawIndex = defaultdict(list)
+        self.doclist = list()
+
+    def load(self):
+        with open(self.indexFile, 'rb') as f2:
+             self.rawIndex = json.load(f2)
+        with open(self.docFile, 'rb') as f3:
+            self.doclist = json.load(f3)

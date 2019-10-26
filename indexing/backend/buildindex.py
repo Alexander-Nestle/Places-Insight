@@ -1,6 +1,4 @@
-import json
-from backend.InvertedIndex import InvertedIndex
-from backend.JsonOps import JsonParser
+from indexing.backend.InvertedIndex import InvertedIndex
 
 inputFile="PlacesResults.json"
 indexFile="PlacesIndex.json"

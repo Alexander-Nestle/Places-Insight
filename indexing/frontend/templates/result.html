@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link href="../static/main.css" rel="stylesheet" />
+  </head>
+  <body>
+    <a href="{{ url_for("home") }}">Go Back To Search Page</a>
+    <div>
+    <h1>Search Result for: <b>{{ querystr }}</b></h1>
+    <h2>Totally {{ resultlen }} retrieved </h2>
+    <hr>
+    {% for res in resultlist %}
+        <h2>Name: {{ res["name"] }}</h2>
+        <h3>Address {{ res["formatted_address"] }}</h3>
+        {% set revcount = namespace(a=0) %}
+        {% for rev in res["reviews"] %}
+            <p>Review: {{ revcount.a }}</p>
+            <p>{{ rev["text"] }}</p>
+            {% set revcount.a = revcount.a + 1 %}
+        {% endfor %}
+        <br>
+    {% endfor %}
+    </div>
+  </body>
+</html>

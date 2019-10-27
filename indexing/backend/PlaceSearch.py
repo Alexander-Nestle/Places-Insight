@@ -59,7 +59,7 @@ class PlaceSearch:
         return score
 
     """tokenize the query and run search for each token"""
-    def search(self, query, maxshown=10):
+    def search(self, query, maxshown=100):
         """first, process the query string"""
         query_words = self.tokenizer(query)
         query_word_set = set()
@@ -93,7 +93,9 @@ class PlaceSearch:
         else:
             return doc_list
 
+"""Called when directly invoked"""
 if __name__ == "__main__":
+
     from indexing.backend.PlaceShow import PlaceShow
 
     query_str = "child friendly restaurant"
@@ -121,5 +123,5 @@ if __name__ == "__main__":
         print("address: " + query_doc_item.address)
         print("review: " + query_doc_item.review)
         """
-        print(plcShow.show(str(query_item[0])))
+        print(plcShow.show_text(str(query_item[0])))
         show_counter += 1

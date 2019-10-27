@@ -6,7 +6,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import EnglishStemmer
 from indexing.backend.JsonOps import JsonDocParser
 
-"""Tempory defininition for index item"""
+"""Temporary definition for index item"""
 class IndexItem:
     def __init__(self, docId, tokenCnt):
         self.docId = docId
@@ -82,7 +82,9 @@ class InvertedIndex:
         self.saveIndex()
         self.saveDocument()
 
+"""Called when directly invoked"""
 if __name__ == "__main__":
+
     inputFile = "PlacesResults.json"
     indexFile = "PlacesIndex.json"
     documentFile = "PlacesDoc.json"

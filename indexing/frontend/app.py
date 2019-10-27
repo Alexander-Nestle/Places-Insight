@@ -9,9 +9,9 @@ app = Flask(__name__)
 def home():
     if request.method == 'POST':
         queryStr = request.form.get('searchbox')
-        print("Query string is " + str(queryStr))
+        #print("Query string is " + str(queryStr))
         doclist = plcSearch.search(queryStr)
-        resultlist = [plcShow.get_item(docItem[0]) for docItem in doclist]
+        resultlist = [plcShow.get_item(docItem[0]) for docItem in doclist[0:maxDisplay]]
         return render_template('result.html', querystr=queryStr, resultlist=resultlist, resultlen=len(resultlist))
         #return "query string is " + str(queryStr)
     return render_template('index.html')
@@ -25,5 +25,6 @@ if __name__ == '__main__':
     plcSearch.load()
     plcShow = PlaceShow(oriDocFile)
     plcShow.load()
+    maxDisplay = 20
 
     app.run(debug=True, port=5000)

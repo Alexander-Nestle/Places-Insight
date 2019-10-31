@@ -101,9 +101,9 @@ if __name__ == "__main__":
     query_str = "child friendly restaurant"
     max_shown = 8
     show_counter = 0
-    oriDocFile = "PlacesResults.json"
-    indexFile = "PlacesIndex.json"
-    docFile = "PlacesDoc.json"
+    oriDocFile = "dataset.json"
+    indexFile = "dataindex.json"
+    docFile = "datadoc.json"
 
     """First, build a search object"""
     plcSearch = PlaceSearch(indexFile, docFile)

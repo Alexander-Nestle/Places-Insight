@@ -85,9 +85,9 @@ class InvertedIndex:
 """Called when directly invoked"""
 if __name__ == "__main__":
 
-    inputFile = "PlacesResults.json"
-    indexFile = "PlacesIndex.json"
-    documentFile = "PlacesDoc.json"
+    inputFile = "dataset.json"
+    indexFile = "dataindex.json"
+    documentFile = "datadoc.json"
 
     invIndex = InvertedIndex(inputFile, indexFile, documentFile)
     invIndex.buildIndex()

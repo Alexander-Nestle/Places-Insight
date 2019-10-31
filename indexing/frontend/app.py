@@ -18,9 +18,9 @@ def home():
 
 if __name__ == '__main__':
     """First we do initilization"""
-    oriDocFile = "../backend/PlacesResults.json"
-    indexFile = "../backend/PlacesIndex.json"
-    docFile = "../backend/PlacesDoc.json"
+    oriDocFile = "../backend/dataset.json"
+    indexFile = "../backend/dataindex.json"
+    docFile = "../backend/datadoc.json"
     plcSearch = PlaceSearch(indexFile, docFile)
     plcSearch.load()
     plcShow = PlaceShow(oriDocFile)

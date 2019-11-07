@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from indexing.backend.ReviewDocument import DocumentItem
+from .ReviewDocument import DocumentItem
 
 """parse the review documents into documentItems"""
 class JsonDocParser:

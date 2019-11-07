@@ -4,8 +4,8 @@ from collections import defaultdict
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import EnglishStemmer
-from indexing.backend.ReviewDocument import DocumentCollection
-from indexing.backend.JsonOps import JsonIndexParser
+from .ReviewDocument import DocumentCollection
+from .JsonOps import JsonIndexParser
 
 """Place Search Algorithm"""
 class PlaceSearch:

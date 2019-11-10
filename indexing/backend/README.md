@@ -4,10 +4,22 @@
 
 This module is the back end implementation of indexing and query, it contains following part:
 
-1. Indexing Module
-2. Query Module
-3. Display Content Module
-4. Database Module (To be designed)
+1. Config file
+2. Indexing Module
+3. Query Module
+4. Display Content Module
+5. Database Module (To be designed)
+
+
+
+### Configuration
+
+This is defined with config.json and Config.py
+
+The purpose of using configuration file is:
+
+1. To define the database type (memoryDB, mongoDB, etc)
+2. If using memoryDB, define which files it is written to.
 
 
 
@@ -69,7 +81,6 @@ The Key to the document
 
 2. Run ranking function and return query results (doc_key), ranking function used here is BM25
 
-   
 
 ### Show
 
@@ -86,6 +97,14 @@ Display the result, the format can be customized and adjusted
 #### Design consideration
 
 The mapping between doc key and documents can be designed either through json file or mongoDB
+
+
+
+### DataBase Module
+
+Implemented through DataBase.py
+
+Currently only implemented with DB interface and MemoryDB as instance
 
 
 

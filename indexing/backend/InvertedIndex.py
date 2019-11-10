@@ -1,23 +1,22 @@
 import json
 import nltk
-from collections import defaultdict
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import EnglishStemmer
-from backend.FileManager import FileManager
+from backend.Config import Config
+from backend.DataBase import DBManager
 
 
 class DocumentItem:
     """This class defines the structure of one touristic site, which is used indexing part"""
-    def __init__(self, doc_id, key, name, address, reviews):
+    def __init__(self, doc_id, key, reviews):
         self.id = doc_id
         self.key = key
-        self.name = name
-        self.address = address
         self.reviews = reviews
         self.doc_len = 1
 
     def serialize(self):
+        """This is designed for saving to a json file"""
         doc_item_dict = dict()
         doc_item_dict["id"] = self.id
         doc_item_dict["key"] = self.key
@@ -52,8 +51,6 @@ class JsonDocParser:
             return
         item_raw = self.doc_list[self.doc_idx]
         item_key = item_raw['place_id']
-        item_name = item_raw['name']
-        item_address = item_raw['formatted_address']
         item_text = ""
         for item_rev in item_raw['reviews']:
             if "language" in item_rev.keys() and item_rev["language"].lower() != "en":
@@ -61,7 +58,7 @@ class JsonDocParser:
             item_text += item_rev["text"]
             item_text += " "
         self.doc_idx += 1
-        return DocumentItem(self.doc_idx-1, item_key, item_name, item_address, item_text)
+        return DocumentItem(self.doc_idx-1, item_key, item_text)
 
 
 class IndexItem:
@@ -71,6 +68,7 @@ class IndexItem:
         self.token_cnt = token_cnt
 
     def serialize(self):
+        """This is designed for saving to a json file"""
         ind_item_dict = dict()
         ind_item_dict["id"] = self.doc_id
         ind_item_dict["cnt"] = self.token_cnt
@@ -79,14 +77,19 @@ class IndexItem:
 
 class InvertedIndex:
     """Class for inverted indexing, main class here"""
-    def __init__(self, input_file, index_file, doc_out_file):
-        self.input_file = input_file
-        self.index_file = index_file
-        self.doc_file = doc_out_file
+    def __init__(self, config):
+        conf = config.conf
+        self.input_file = config.path + conf["data_file"]
+        assert self.input_file is not None
+        self.meta_file = config.path + conf["meta_file"]
+        assert self.meta_file is not None
+        db_manager = DBManager(config)
+        self.index_db = db_manager.get_index_db()
+        self.doc_db = db_manager.get_doc_db()
         self.tokenizer = word_tokenize
         self.stemmer = EnglishStemmer()
-        self.index = defaultdict(list)
-        self.documents = list()
+        self.doc_num = 0
+        self.total_len = 0
         try:
             self.stopwords = set(stopwords.words('english'))
         except:
@@ -110,28 +113,36 @@ class InvertedIndex:
             if self.stemmer:
                 token = self.stemmer.stem(token)
 
-            if len(self.index[token]) == 0:
-                self.index[token].append(IndexItem(doc_id, 1))
-            elif self.index[token][-1].doc_id == doc_id:
-                self.index[token][-1].token_cnt += 1
+            if not self.index_db.token_exist(token):
+                self.index_db.put_token(token, IndexItem(doc_id, 1))
+            elif self.index_db.token_doc_exist(token, doc_id):
+                self.index_db.inc_token_cnt(token, doc_id)
             else:
-                self.index[token].append(IndexItem(doc_id, 1))
+                self.index_db.append_token(token, IndexItem(doc_id, 1))
 
         document.set_doclen(doc_len)
-        self.documents.append(document)
+        self.doc_db.add_doc(document)
+        self.doc_num += 1
+        self.total_len += doc_len
 
-    """Save Index to a file"""
     def save_index(self):
-        index_file_handler = open(self.index_file, "w+")
-        json.dump(self.index, index_file_handler, default=lambda x: x.serialize())
+        """Save Index to a file"""
+        self.index_db.save_db()
 
-    """Save document to a file"""
     def save_document(self):
-        doc_file_handler = open(self.doc_file, "w+")
-        json.dump(self.documents, doc_file_handler, default=lambda x: x.serialize())
+        """Save document to a file"""
+        self.doc_db.save_db()
 
-    """Parse a json File"""
+    def save_meta(self):
+        """Save metadata to a file"""
+        meta_file_handler = open(self.meta_file, "w+")
+        meta_data = dict()
+        meta_data["doc_num"] = self.doc_num
+        meta_data["avg_dl"] = self.total_len/self.doc_num
+        json.dump(meta_data, meta_file_handler)
+
     def build_index(self):
+        """Parse a json File"""
         jparser = JsonDocParser(self.input_file)
         jparser.parse()
         while jparser.has_more_item():
@@ -140,14 +151,11 @@ class InvertedIndex:
                 self.add(doc_item)
         self.save_index()
         self.save_document()
+        self.save_meta()
 
 
 """Called when directly invoked"""
 if __name__ == "__main__":
-
-    fmanager = FileManager()
-    input_file = fmanager.data_file
-    index_file = fmanager.index_file
-    document_file = fmanager.doc_file
-    invert_index = InvertedIndex(input_file, index_file, document_file)
+    config = Config()
+    invert_index = InvertedIndex(config)
     invert_index.build_index()

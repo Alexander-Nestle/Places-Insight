@@ -1,18 +1,11 @@
-import json
-import math
 import nltk
-from collections import defaultdict
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import EnglishStemmer
-from backend.FileManager import FileManager
-
-
-class DocumentCollection:
-    """This class defines the structure that serves for all documents"""
-    def __init__(self):
-        self.doc_num = 0
-        self.avg_dl = 0
+from backend.Config import Config
+from backend.DataBase import DBManager
+from backend.PlaceShow import PlaceShow
+from backend.PlaceRank import Ranking
 
 
 class ReviewItem:
@@ -24,93 +17,14 @@ class ReviewItem:
         self.review_text = review_text
 
 
-class JsonIndexParser:
-    """Parse the index document and load it to memory"""
-    def __init__(self, index_file, doc_file):
-        self.index_file = index_file
-        self.doc_file = doc_file
-        self.raw_index = defaultdict(list)
-        self.doc_list = list()
-
-    def load(self):
-        with open(self.index_file, 'rb') as f2:
-            self.raw_index = json.load(f2)
-        with open(self.doc_file, 'rb') as f3:
-            self.doc_list = json.load(f3)
-
-
-class Ranking:
-    """Ranking class"""
-    def __init__(self, index_dict, doc_collection):
-        self.index = index_dict
-        self.doc_collection = doc_collection
-
-    """Calculate the BM25 score of one query to a certain document"""
-    def bm25(self, query, document, k1=1.2, b=0.75):
-        """Note the query are provided in a tokenized manner"""
-        score = 0
-        for word in query:
-            nq = len(self.index[word])
-            idf = math.log2((self.doc_collection.doc_num - nq + 0.5) / (nq + 0.5))
-            fqd = 0
-            if document["id"] in self.index[word].keys():
-                fqd = self.index[word][document["id"]]
-            score += idf * fqd * (k1 + 1)/(fqd + k1 * (1 - b + b * document["len"] / self.doc_collection.avg_dl))
-        return score
-
-    """Perform the ranking"""
-    def ranking(self, doc_ids, query, documents):
-        doc_list = []
-        for id in doc_ids:
-            bm25_score = self.bm25(query, documents[id])
-            doc_list.append([documents[id]["key"], bm25_score])
-        """Sort by bm25 score"""
-        doc_list.sort(key=lambda x: x[1], reverse=True)
-        return doc_list
-
-
-class PlaceShow:
-    """
-    This module is in charge of how/what to display to user based on returned document key
-    This would take search doc key as input.
-    The output would be send to frontend for display, this module may also be directly invoked in frontend
-    """
-    def __init__(self, ref_document):
-        self.ref_doc = ref_document
-        self.ref_dict = defaultdict()
-
-    def load(self):
-        with open(self.ref_doc, "rb") as f:
-            data_doc_list = json.load(f)
-            for doc in data_doc_list:
-                self.ref_dict[doc["place_id"]] = doc
-
-    def get_item(self, key):
-        doc = self.ref_dict[key]
-        return doc
-
-    def show_text(self, key):
-        doc = self.ref_dict[key]
-        output = ""
-        cnt = 1
-        for rev in doc["reviews"]:
-            output += "Review " + str(cnt) + ": " + rev["text"].strip() + "\n"
-            cnt += 1
-        return output
-
-
 class PlaceSearch:
     """Place Search Algorithm"""
-    def __init__(self, index_file, doc_file):
-        self.index_file = index_file
-        self.doc_file = doc_file
+    def __init__(self, config):
+        db_manager = DBManager(config)
+        self.index_db = db_manager.get_index_db()
         self.tokenizer = word_tokenize
         self.stemmer = EnglishStemmer()
-        self.index = defaultdict(dict)
-        self.documents = list()
-        """self.docmap = defaultdict()"""
-        self.doc_collection = DocumentCollection()
-        self.ranking = None
+
         try:
             self.stopwords = set(stopwords.words('english'))
         except:
@@ -118,28 +32,11 @@ class PlaceSearch:
             nltk.download('punkt')
             self.stopwords = set(stopwords.words('english'))
 
-    """Load index and document json file and build index structure"""
     def load(self):
-        # load parse index file
-        index_parser = JsonIndexParser(self.index_file, self.doc_file)
-        index_parser.load()
-        for token in index_parser.raw_index.keys():
-            doc_item_list = index_parser.raw_index[token]
-            for doc_item in doc_item_list:
-                self.index[token][doc_item["id"]] = doc_item["cnt"]
-        # load and parse doc file
-        self.documents = index_parser.doc_list
-        total_len = 0
-        cnt = 0
-        for doc in self.documents:
-            total_len += doc["len"]
-            assert doc["id"] == cnt
-            cnt += 1
-        self.doc_collection.doc_num = len(self.documents)
-        self.doc_collection.avg_dl = total_len / self.doc_collection.doc_num
-        self.ranking = Ranking(self.index, self.doc_collection)
+        """Load index and document json file and build index structure"""
+        self.index_db.load_db()
 
-    def search(self, query, maxshown=100):
+    def search(self, query):
         """tokenize the query and run search for each token"""
         """first, process the query string"""
         query_words = self.tokenizer(query)
@@ -154,38 +51,59 @@ class PlaceSearch:
         """second, for each unique word,run query"""
         doc_id_set = set()
         for word in query_word_set:
-            cur_id_list = self.index.get(word).keys()
+            cur_id_list = self.index_db.get_docs(word).keys()
             if len(doc_id_set) == 0:
                 doc_id_set = set(cur_id_list)
             else:
                 doc_id_set = doc_id_set.union(set(cur_id_list))
 
-        doc_list = self.ranking.ranking(doc_id_set, query_word_set, self.documents)
-        if len(doc_list) >= maxshown:
-            return doc_list[0: maxshown]
+        return query_word_set, doc_id_set
+
+
+class SearchRank:
+    """
+    This provide one-in-all interface to caller
+    Including PlaceSearch, PlaceRank
+    """
+    def __init__(self, config):
+        self.config = config
+        self.plc_search = None
+        self.plc_rank = None
+
+    def initialize(self):
+        self.plc_search = PlaceSearch(self.config)
+        self.plc_search.load()
+        self.plc_rank = Ranking(self.config, self.plc_search.index_db)
+        self.plc_rank.initialize()
+
+    def search(self, query_str, max_shown=100):
+        query_word_set, doc_id_set = self.plc_search.search(query_str)
+        doc_list = self.plc_rank.ranking(doc_id_set, query_word_set)
+        if len(doc_list) >= max_shown:
+            return doc_list[0: max_shown]
         else:
             return doc_list
 
 
-"""Called when directly invoked"""
+"""
+Called when directly invoked
+This is just for testing purpose
+"""
 if __name__ == "__main__":
 
     query_str = "child friendly restaurant"
     max_shown = 8
     show_counter = 0
-    fmanager = FileManager()
-    data_file = fmanager.data_file
-    index_file = fmanager.index_file
-    doc_file = fmanager.doc_file
+    config = Config()
 
     """First, build a search object"""
-    plc_search = PlaceSearch(index_file, doc_file)
-    plc_search.load()
+    search_rank = SearchRank(config)
+    search_rank.initialize()
 
-    plc_show = PlaceShow(data_file)
+    plc_show = PlaceShow(config)
     plc_show.load()
 
-    query_doc_list = plc_search.search(query_str, max_shown)
+    query_doc_list = search_rank.search(query_str, max_shown)
     for query_item in query_doc_list:
         query_doc_item = query_item[0]
         print("=" * 20 + " Result " + str(show_counter) + " " + "=" * 20)

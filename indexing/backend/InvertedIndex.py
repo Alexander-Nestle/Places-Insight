@@ -83,9 +83,9 @@ class InvertedIndex:
         assert self.input_file is not None
         self.meta_file = config.path + conf["meta_file"]
         assert self.meta_file is not None
-        db_manager = DBManager(config)
-        self.index_db = db_manager.get_index_db()
-        self.doc_db = db_manager.get_doc_db()
+        DBManager.initialize(config)
+        self.index_db = DBManager.get_index_db()
+        self.doc_db = DBManager.get_doc_db()
         self.tokenizer = word_tokenize
         self.stemmer = EnglishStemmer()
         self.doc_num = 0

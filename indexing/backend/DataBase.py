@@ -144,36 +144,46 @@ class DBManager:
     Implementation will change if we change DB Type
     Say from MemoryDB to MongoDB
     """
-    def __init__(self, config):
-        self.index_db = None
-        self.doc_db = None
-        self.config = config
-        self.path = ""
+    index_db = None
+    doc_db = None
+    config = None
+    path = ""
+    initialized = False
 
-    def set_path(self, relative_path):
+    @classmethod
+    def initialize(cls, config):
+        if not cls.initialized:
+            cls.config = config
+            cls.path = config.path
+        cls.initialized = True
+
+    @classmethod
+    def set_path(cls, relative_path):
         """
         This is designed for memorydb
         In considering app.py and InvertedIndex.py may be called with different path
         """
-        self.path = relative_path
+        cls.path = relative_path
 
-    def get_index_db(self):
-        if self.index_db is None:
-            db_type = self.config.conf["db_type"]
+    @classmethod
+    def get_index_db(cls):
+        if cls.index_db is None:
+            db_type = cls.config.conf["db_type"]
             if db_type.lower() == "memorydb":
-                index_file = self.config.path + self.config.conf["index_file"]
+                index_file = cls.config.conf["index_file"]
                 assert index_file is not None
-                index_file = self.path + index_file
-                self.index_db = IndexMemoryDB(index_file)
-        return self.index_db
+                index_file = cls.path + index_file
+                cls.index_db = IndexMemoryDB(index_file)
+        return cls.index_db
 
-    def get_doc_db(self):
-        if self.doc_db is None:
-            db_type = self.config.conf["db_type"]
+    @classmethod
+    def get_doc_db(cls):
+        if cls.doc_db is None:
+            db_type = cls.config.conf["db_type"]
             if db_type.lower() == "memorydb":
-                doc_file = self.config.path + self.config.conf["doc_file"]
+                doc_file = cls.config.conf["doc_file"]
                 assert doc_file is not None
-                doc_file = self.path + doc_file
-                self.doc_db = DocumentMemoryDB(doc_file)
-        return self.doc_db
+                doc_file = cls.path + doc_file
+                cls.doc_db = DocumentMemoryDB(doc_file)
+        return cls.doc_db
 

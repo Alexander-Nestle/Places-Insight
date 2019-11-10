@@ -5,17 +5,17 @@ from backend.DataBase import DBManager
 
 class Ranking:
     """Ranking class"""
-    def __init__(self, config, index_db):
+    def __init__(self, config):
         """We assume that index_db is already created in indexing phase"""
         conf = config.conf
-        self.index_db = index_db
+        assert DBManager.initialized is True
+        self.index_db = DBManager.get_index_db()
         meta_file = config.path + conf["meta_file"]
         with open(meta_file, "r") as f:
             meta_data = json.load(f)
             self.doc_num = meta_data["doc_num"]
             self.avg_dl = meta_data["avg_dl"]
-        db_manager = DBManager(config)
-        self.doc_db = db_manager.get_doc_db()
+        self.doc_db = DBManager.get_doc_db()
 
     def initialize(self):
         """This is to load doc for ranking purpose"""
@@ -28,8 +28,6 @@ class Ranking:
         for word in query:
             doc_list = self.index_db.get_docs(word)
             nq = len(doc_list)
-            print("word is " + str(word))
-            print("nq is " + str(nq))
             idf = math.log2((self.doc_num - nq + 0.5) / (nq + 0.5))
             fqd = 0
             if document["id"] in doc_list.keys():

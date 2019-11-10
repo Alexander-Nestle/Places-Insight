@@ -20,8 +20,8 @@ class ReviewItem:
 class PlaceSearch:
     """Place Search Algorithm"""
     def __init__(self, config):
-        db_manager = DBManager(config)
-        self.index_db = db_manager.get_index_db()
+        DBManager.initialize(config)
+        self.index_db = DBManager.get_index_db()
         self.tokenizer = word_tokenize
         self.stemmer = EnglishStemmer()
 
@@ -73,7 +73,7 @@ class SearchRank:
     def initialize(self):
         self.plc_search = PlaceSearch(self.config)
         self.plc_search.load()
-        self.plc_rank = Ranking(self.config, self.plc_search.index_db)
+        self.plc_rank = Ranking(self.config)
         self.plc_rank.initialize()
 
     def search(self, query_str, max_shown=100):
@@ -109,10 +109,6 @@ if __name__ == "__main__":
         print("=" * 20 + " Result " + str(show_counter) + " " + "=" * 20)
         print("BM25 score: " + str(query_item[1]))
         print("Document Key: " + str(query_item[0]))
-        """
-        print("name: " + query_doc_item.name)
-        print("address: " + query_doc_item.address)
-        print("review: " + query_doc_item.review)
-        """
+
         print(plc_show.show_text(str(query_item[0])))
         show_counter += 1

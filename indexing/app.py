@@ -23,8 +23,8 @@ if __name__ == '__main__':
     print(os.getcwd())
     dir_prefix = "./backend/"
     db_config = Config(dir_prefix)
-    db_manager = DBManager(db_config)
-    db_manager.set_path(dir_prefix)
+    DBManager.initialize(db_config)
+    DBManager.set_path(dir_prefix)
 
     plc_search = SearchRank(db_config)
     plc_search.initialize()

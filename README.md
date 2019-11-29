@@ -1,6 +1,7 @@
 # Places Insights
 ### Natural Language Search Engine for Places
 Final Project for CS410: Text Information Analytics at the University of Illinois at Urbana-Champaign
+
 Akhmad Rahadian Hutomo, ahutomo2@illinois.edu | Alexander Nestle, nestle2@illinois.edu | Eric Yang Liu, yangl18@illinois.edu
 
 ## 1. Software Overview
@@ -10,8 +11,6 @@ An overview of the function of the code
 ### 1.1 What it does?
 
 The goal of this project is to create a search engine implementation that will allow users to query a database of businesses, places, and parks (which will be referred to as ‘places’ within this document) using natural language attributes such as ‘child friendly’, ‘Italian food’, or ‘beautiful building’ in order to quickly receive relevant places
-
-![](@attachment/Clipboard_2019-11-29-16-11-47.png)
 
 User will be interfacing with a query input that will predict the relevant places based on the query itself and a set of topic based on the query
 

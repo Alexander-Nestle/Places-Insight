@@ -40,6 +40,11 @@
         <div class="card border-primary mb-3 center-card" style="width: 85%;">
             <div class="card-body">
                 <h4 class="card-title">{{ res["name"] }}</h4>
+                <h6 class="text-muted">Topics: 
+                    {% for topic in res["review_topics"] %}
+                        <span class="badge badge-pill badge-primary">{{ topic["topic"] }}</span>
+                    {% endfor %}
+                </h6>
                 <ul class="nav nav-tabs" data-tabs="tabs">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#info{{res["place_id"]}}">Info</a>

@@ -16,7 +16,7 @@ User will be interfacing with a query input that will predict the relevant place
 
 ### 1.2 Use Case
 
-User may enter query based on variety of use case. The goals of the software is to recieve a natural language query and predict the most likely based on user intent. 
+User may enter query based on variety of use cases. The goals of the software is to receive a natural language query and predict the most likely result based on user intent. 
 
 Here are some possible use cases from users:
 
@@ -50,8 +50,9 @@ This module is the back end implementation of indexing and query, it contains fo
 1. Config file
 2. Indexing Module
 3. Query Module
-4. Display Content Module
-5. Database Module (To be designed)
+4. Ranking Module
+5. Display Content Module
+6. Database Module (To be designed)
 
 #### 2.3.1 Configuration
 
@@ -60,7 +61,7 @@ This is defined with config.json and Config.py
 The purpose of using configuration file is:
 
 1. To define the database type (memoryDB, mongoDB, etc)
-2. If using memoryDB, define which files it is written to.
+2. If using memoryDB (in memory database), define source file (in json format) it is read from and the destination file it is written to (json file)
 
 #### 2.3.2 Indexing
 
@@ -68,21 +69,21 @@ This is implemented through file `InvertedIndex.py`
 
 ##### Input:
 
-The scraped json file standing for the geographic data, this file comes from Alex
+The scraped json file stands for the geographic data, this file comes from Alex by scraping from Facebook travel recommendations
 
 ##### Output:
 
-1. One output indexing file in json format, which is the first layer mapping from a token to a list of documents(save document id or document key)
+1. One output indexing file in json format, which is the first layer mapping from a token to a list of documents (save document id or document key) containing the token.
 
-2. Another output file which maps the document id (or document key) to document key
+2. Another output file which maps the document id (or document key) to document key, with document(review) length for which will be used in ranking
 
 #### Algorithm:
 
-Use inverted indexing to create indexing from input json file.
+Use inverted indexing to do token indexing from input json file.
 
 #### Design consideration:
 
-Here we save in the first json file the document ID (from read ordering) iso document key just to save space
+Here we save in the first json file the document ID (from read ordering, incremented from 0) iso document key just to save space
 
 ### 2.3.3 Search
 
@@ -90,8 +91,8 @@ This is implemented through `PlaceSearch.py`
 
 There are two steps:
 
-* First, we load the indexing file in json format
-* Second, we process user query
+* First, we load the indexing file in json format (we only load this once)
+* Second, we process user query (run this for each query)
 
 #### Loading Phase:
 
@@ -101,7 +102,7 @@ The indexing file in json format obtained from `Indexing` step
 
 ##### Output:
 
-A in memory database of the indexing table/map
+An in memory database of the indexing table/map
 
 #### Query Phase:
 
@@ -111,16 +112,37 @@ The query string
 
 ##### Output:
 
-The Key to the document
+The Keys to a list of documents matching the query string.
 
 ##### Algorithm:
 
 1. Run query on each token and come up with a combined query result
 
-2. Run ranking function and return query results (doc_key), ranking function used here is BM25
+2. Run ranking function and return query results (doc_key), ranking function used here is BM25 with topic  weight.
 
+### 2.3.4 Ranking
 
-### 2.3.4 Show
+The Ranking function is implemented through `PlaceRank.py`
+
+It is singled out from search module in consideration of customizing purpose
+
+#### Input:
+
+1. Indexing file (dataindex.json) generated from Indexing phase
+2. doc file (containing document meta info, say length) generated from indexing phase
+3. topic modeling score (from query) generated from query 
+
+#### Output:
+
+1. A list of result in the order of ranking score (descending)
+
+#### Algorithm:
+
+1. Calculate the score of each query result using BM25
+2. Calculate the topic score based on query topic (inferred from query string) and document topic;
+3. Generate  a weighted BM25 output (the weight is the topic score) 
+
+### 2.3.5 Show
 
 Implemented through `PlaceShow.py`
 
@@ -136,19 +158,21 @@ Display the result, the format can be customized and adjusted
 
 The mapping between doc key and documents can be designed either through json file or mongoDB
 
-### 2.3.5 DataBase Module
+Currently, PlaceShow.py provide a standalone result show functionality for debugging purpose as well as interface for front end display.
+
+### 2.3.6 DataBase Module
 
 Implemented through DataBase.py
 
 Currently only implemented with DB interface and MemoryDB as instance
 
-### 2.3.6 How to test Search & Indexing implementation
+### 2.3.7 How to test Search & Indexing implementation
 
 1. Directly Run `python InvertedIndex.py` to create Index:
    1. Note we need to copy `PlacesResults.json` in the same directory
 2. Directly Run `python PlaceSearch.py` to search from a predefined query string
 
-### 2.4 Topic Modelling
+### 2.4 Topic Modeling
 
 ### 2.5 Other 
 
@@ -160,7 +184,7 @@ Currently only implemented with DB interface and MemoryDB as instance
 
 ### 2.6 Future extension and improvement
 
-- Expand the dataser or test on different dataset
+- Expand the dataset or test on different dataset
 - Performance measurement of the software compared to other available services
 - Test and find suitable ranking algorithm 
 - Explore different topic model parameters

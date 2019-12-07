@@ -1,7 +1,7 @@
 import math
 import json
-import gzip
 import gensim 
+from gensim.models import KeyedVectors
 from backend.DataBase import DBManager
 from backend.topicModel.TopicModelService import TopicModelService
 
@@ -39,43 +39,26 @@ class Ranking:
             score += idf * fqd * (k1 + 1)/(fqd + k1 * (1 - b + b * document["len"] / self.avg_dl))
         return score
 
-    
-    def read_input(self, input_file):
-        """This method reads the input file which is in gzip format"""
-        with gzip.open(input_file, 'rb') as f:
-            for i, line in enumerate(f):
-                # do some pre-processing and return list of words for each review
-                yield gensim.utils.simple_preprocess(line)
+    def queryExpansion(self,query):
 
-    def queryExpansion(self, query):
+        wordlength = len (str(query).split())
 
-        review_training = "./backend/reviews.txt.gz"
-        documents_train = list (self.read_input (review_training))
+        if wordlength > 1:
+            return query
 
-        # build vocabulary and train model
-        model = gensim.models.Word2Vec(documents_train,size=150,window=10,min_count=2,workers=10,iter=10)
-        model.train(documents_train,total_examples=len(documents_train),epochs=10)
-
+        model = KeyedVectors.load_word2vec_format("./backend/datawordvectors.kv", binary=False)
         similarwords = model.wv.most_similar (positive=query,topn=3)
-        expandedquery = ""
 
         for words in similarwords:
             similar, vector = words
-            expandedquery = expandedquery +" "+ similar 
+            query.add(similar) 
 
-        return query + " " + expandedquery
+        return query
 
     def ranking(self, doc_ids, query):
         """Perform the ranking"""
 
-        # Check if query is single word
-        wordlength = len (str(query).split())
-
-        if wordlength < 2:
-            query = self.queryExpansion(str(query))
-        else:
-            pass
-
+        self.query = self.queryExpansion(query)
         # Classifies Query to topic
         query_topic = self.topic_model_service.get_query_topic(query)
 

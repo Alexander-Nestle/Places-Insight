@@ -46,14 +46,17 @@ class Ranking:
         if wordlength > 1:
             return query
 
-        model = KeyedVectors.load_word2vec_format("./backend/datawordvectors.kv", binary=False)
-        similarwords = model.wv.most_similar (positive=query,topn=3)
+        try: 
+            model = KeyedVectors.load_word2vec_format("./backend/datawordvectors.kv", binary=False)
+            similarwords = model.wv.most_similar (positive=query,topn=3)
 
-        for words in similarwords:
-            similar, vector = words
-            query.add(similar) 
+            for words in similarwords:
+                similar, vector = words
+                query.add(similar) 
 
-        return query
+            return query
+        except:
+            return query
 
     def ranking(self, doc_ids, query):
         """Perform the ranking"""

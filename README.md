@@ -211,7 +211,7 @@ pip install nltk
 
 pip install gensim
 
-pip install space
+pip install spacy
 
 python -m spacy download en
 

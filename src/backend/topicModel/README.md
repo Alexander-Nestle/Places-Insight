@@ -1,11 +1,11 @@
 # File Descriptions
 
-## Model Directory
+### Model Directory
 Contains the generated topic model.  Gensim library can readin these files to produce a lda_model object.  
 
 Code to do this can be found in TopicModelGenerator.py.
 
-## preprocessd_reviews.txt
+#### preprocessd_reviews.txt
 Contains preprocessed reviews for LDA model (linting, stemming, etc)
 
 ## pyLDAvis.html

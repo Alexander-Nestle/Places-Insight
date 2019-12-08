@@ -20,21 +20,7 @@ import en_core_web_sm
 # Plotting tools
 import pyLDAvis
 import pyLDAvis.gensim  # don't skip this
-# import matplotlib.pyplot as plt
-# import os
-"""
-documentation
 
-# Run in python console
-import nltk; nltk.download('stopwords')
-
-pip install numpy
-pip install -U gensim
-pip install pyLDAvis
-
-// gets spacy model
-python -m spacy download en
-"""
 class TopicModelGenerator:
     """Class Preforms Topic Model and Support Document Generation and IO"""
     def load_dataset(self, path):

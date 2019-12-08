@@ -37,11 +37,11 @@ Documentation of how the software is implemented with sufficient detail so that 
 
 Currently, the place names and addresses were scraped from Facebook travel page recommendations, which were then used to query the Google Places API to receive place information and reviews. We may also collect more place/reviews from different sources (say, yelp, Kaggle) for any upcoming iterations of projects.
 
-Topic modeling will be used to create the ‘queryable attributes’ of the places. This will be done by running the topic modeling algorithm (say LDA algorithm) against all the collected reviews. This will create the queryable topics (place attributes). During the topic modeling process, we will need to manually interpret the topics and name them appropriately.
-
-Once the topics are created, we will run each review through our topic model. This will tell us the topics that each review included, and the most common topics will be used to describe each place, which is then queryable by the user.
+The dataset information was expanded by using topic modeling to create the ‘queryable attributes’ of the places, which was added to each place in teh dataset under the 'review_topics' key. This was done by running the LDA topic modeling algorithm against all the collected reviews to create 40 topic distributions. This created a probabilty distribution of topics within each review.  The topics that had a 20% or higher distribuion where saved to the review under the 'topics' key, as well as the place.
 
 ### 2.2 Web Front End - View
+
+The front end is comprised of html templates which are dynamically served by the Flask framework.  These templates are styled using Bootstrap CSS, which has a JQuery dependency.
 
 ### 2.3 Indexing and Search Module
 
@@ -140,7 +140,7 @@ It is singled out from search module in consideration of customizing purpose
 
 1. Calculate the score of each query result using BM25
 2. Calculate the topic score based on query topic (inferred from query string) and document topic;
-3. Generate  a weighted BM25 output (the weight is the topic score) 
+3. Generate a weighted BM25 output. The BM25 score is weighted by a topic model score. The topic model score is calculated by first classifying the query and taking the ratio of how many reviews of the place mention the query topic (c) over the total number of reviews (n).  The final weighted score is (1 + (c/n)) * BM25.
 
 ### 2.3.5 Show
 
@@ -174,6 +174,10 @@ Currently only implemented with DB interface and MemoryDB as instance
 
 ### 2.4 Topic Modeling
 
+The topic model was created using the LDA algorithm provided by the Gensim library over all of the reviews within the dataset.  A topic count of 40 was determined through empirical testing and the pyLDAvis library which provides a visual for topic coverage and overlap.  Code for the topic model generation can be found in TopicModelGenerator.py.
+
+The topic model was used to expand the dataset by adding a count of the review topics to each place and provide weighting to the BM25 ranking. The topic model weighting score is calculated by first classifying the query and taking the ratio of how many reviews of the place mention the query topic (c) over the total number of reviews (n).  The final weighted score is (1 + (c/n)) * BM25.  Code for topic model utilization can be found in TopicModelService.py.
+
 ### 2.5 Other 
 
 #### 2.5.1 Query Expansion
@@ -197,15 +201,28 @@ Documentation of the usage of the software including either documentation of usa
 
 ### 3.1 Prerequisites
 
+Note: Application should be run with Python 3.
+
 1. Install required python modules
 ```
-pip install x y z
+pip install flask
+
+pip install nltk
+
+pip install gensim
+
+pip install space
+
+python -m spacy download en
+
+pip install pyLDAvis
 ```
 
 2. Download required packages & resources
 
 3. Run Server Applications 
 ```
+cd ./src
 python app.py
 ```
 
@@ -224,11 +241,11 @@ Brief description of contribution of each team member in case of a multi-person 
 - Project presentation
 
 #### Alexander Nestle - nestle2@illinois.edu
-- Dataset collection
+- Dataset scraping collection
 - Data cleansing & preprocessing
 - Web Front End implementation
 - Topic modeling implementation
-- Topic model & ranking function integration and 
+- Topic model & ranking function integration
 - Project proposal preparation, project documentation
 
 #### Yang Eric Liu - yangl18@illinois.edu

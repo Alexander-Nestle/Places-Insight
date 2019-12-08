@@ -12,7 +12,7 @@ An overview of the function of the code
 
 The goal of this project is to create a search engine implementation that will allow users to query a database of businesses, places, and parks (which will be referred to as ‘places’ within this document) using natural language attributes such as ‘child friendly’, ‘Italian food’, or ‘beautiful building’ in order to quickly receive relevant places
 
-User will be interfacing with a query input.  The user entered query will then be run through a BM25 ranking algorithm that includes topic model weighting to return ranked, relevant places to the user.
+User will be interfacing with a query input.  The user entered query will then be run through a BM25 ranking algorithm that includes topic model weighting to return ranked relevant places to the user.
 
 ### 1.2 Use Case
 

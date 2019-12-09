@@ -35,9 +35,54 @@ Documentation of how the software is implemented with sufficient detail so that 
 
 ### 2.1 Dataset
 
-Currently, the place names and addresses were scraped from Facebook travel page recommendations, which were then used to query the Google Places API to receive place information and reviews. We may also collect more place/reviews from different sources (say, yelp, Kaggle) for any upcoming iterations of projects.
+Currently, the place names and addresses were scraped from Facebook travel page recommendations, which were then used to query the Google Places API to receive place information and reviews. The other possible data source including collecting more place/reviews from different sources (say, yelp, Kaggle) for any upcoming iterations of projects. 
 
-The dataset information was expanded by using topic modeling to create the ‘queryable attributes’ of the places, which was added to each place in teh dataset under the 'review_topics' key. This was done by running the LDA topic modeling algorithm against all the collected reviews to create 40 topic distributions. This created a probabilty distribution of topics within each review.  The topics that had a 20% or higher distribuion where saved to the review under the 'topics' key, as well as the place.
+The storage of the database was initially designed through a simple json file. To enhance it further, developer can change it to NoSQL database if the volume of data increases during project implementation and enhancement.
+
+A few data cleansing tasks has been done to the initial dataset to ensure there are no duplicates of places/ business entries, the place has a certain threshold of number of reviews and also count of the words inside the reviews.
+
+The dataset information was expanded by using topic modeling to create the ‘queryable attributes’ of the places, which was added to each place in the dataset under the 'review_topics' key. 
+
+Dataset Sample:
+```
+{
+  "formatted_address": "Brooklyn, NY 11201, USA",
+  "geometry": {
+    "location": {
+      "lat": 40.6896147,
+      "lng": -73.9858984
+    },
+    "viewport": {
+      "south": 40.6882965197085,
+      "west": -73.9872249802915,
+      "north": 40.6909944802915,
+      "east": -73.98452701970848
+    }
+  },
+  "name": "Brooklyn",
+  "place_id": "ChIJq1RGWExawokRC5VK08ax-Ds",
+  "reviews": [
+    {
+      "author_name": "hisham nofal",
+      "author_url": "https://www.google.com/maps/contrib/114083506813599492082/reviews",
+      "language": "en",
+      "profile_photo_url": "https://lh3.ggpht.com/-2hGHNr4CZDQ/AAAAAAAAAAI/AAAAAAAAAAA/CN_PCdB3E8E/s128-c0x00000000-cc-rp-mo-ba6/photo.jpg",
+      "rating": 4,
+      "relative_time_description": "11 months ago",
+      "text": "For bus is good",
+      "time": 1538667162
+    }
+  ],
+  "types": [
+    "transit_station",
+    "point_of_interest",
+    "establishment"
+  ],
+  "url": "https://maps.google.com/?cid=4321399309968512267",
+  "html_attributions": []
+}ß
+
+```
 
 ### 2.2 Web Front End - View
 

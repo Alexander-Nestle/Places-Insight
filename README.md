@@ -226,14 +226,20 @@ The topic model was used to expand the dataset by adding a count of the review t
 ### 2.5 Other 
 
 #### 2.5.1 Query Expansion
+Project member has experimented using query expansion using Word2Vec word embedding function in Gensim module. The function first will be trained for reviews to create word vectors. Result then will be saved into a *.kv key vector file. Then, the query expansion will look for similar word based on the vectors. The top N similar word then will be added to original query.
 
-#### 2.5.2 Word Embedding
+The inital intention of having query expansion was to enhance search result for a single word query. However, after observation, the function will expand query with paradigmatic relation. This implementation may not work well for a specific search, for example: searching "Japan" will expand the query to "Japan Philadelphia Buddhist"
 
-#### 2.5.3 Pseudo Relevance Feedback
+Possible improvement could be using syntagmatic relation function, or train the data using more generic corpus.
+
+#### 2.5.2 Pseudo Relevance Feedback
+Other experiment we tested was implementing pseudo relevance feedback. This implemented by running original ranking function (BM25), then take top N result, then take topic for this top N model, and expand that to the original query. After testing we found that the topic word was usually more generic/ background word, therefore did not further enhance query function.s
+
 
 ### 2.6 Future extension and improvement
 
 - Expand the dataset or test on different dataset
+- Using more scalable database, such as NoSQL DB
 - Performance measurement of the software compared to other available services
 - Test and find suitable ranking algorithm 
 - Explore different topic model parameters

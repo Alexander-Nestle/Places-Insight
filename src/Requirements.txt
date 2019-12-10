@@ -1,0 +1,15 @@
+Flask
+json
+abc
+collections
+nltk
+math
+re
+numpy
+panda
+pprint
+gensim
+spacy
+en_core_web_sm
+pyLDAvis
+pyLDAvis.gensim

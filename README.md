@@ -12,7 +12,7 @@ An overview of the function of the code
 
 The goal of this project is to create a search engine implementation that will allow users to query a database of businesses, places, and parks (which will be referred to as ‘places’ within this document) using natural language attributes such as ‘child friendly’, ‘Italian food’, or ‘beautiful building’ in order to quickly receive relevant places
 
-User will be interfacing with a query input that will predict the relevant places based on the query itself and a set of topic based on the query
+User will be interfacing with a query input.  The user entered query will then be run through a BM25 ranking algorithm that includes topic model weighting to return ranked relevant places to the user.
 
 ### 1.2 Use Case
 
@@ -35,9 +35,54 @@ Documentation of how the software is implemented with sufficient detail so that 
 
 ### 2.1 Dataset
 
-Currently, the place names and addresses were scraped from Facebook travel page recommendations, which were then used to query the Google Places API to receive place information and reviews. We may also collect more place/reviews from different sources (say, yelp, Kaggle) for any upcoming iterations of projects.
+Currently, the place names and addresses were scraped from Facebook travel page recommendations, which were then used to query the Google Places API to receive place information and reviews. The other possible data source including collecting more place/reviews from different sources (say, yelp, Kaggle) for any upcoming iterations of projects. 
 
-The dataset information was expanded by using topic modeling to create the ‘queryable attributes’ of the places, which was added to each place in teh dataset under the 'review_topics' key. This was done by running the LDA topic modeling algorithm against all the collected reviews to create 40 topic distributions. This created a probabilty distribution of topics within each review.  The topics that had a 20% or higher distribuion where saved to the review under the 'topics' key, as well as the place.
+The storage of the database was initially designed through a simple json file. To enhance it further, developer can change it to NoSQL database if the volume of data increases during project implementation and enhancement.
+
+A few data cleansing tasks has been done to the initial dataset to ensure there are no duplicates of places/ business entries, the place has a certain threshold of number of reviews and also count of the words inside the reviews.
+
+The dataset information was expanded by using topic modeling to create the ‘queryable attributes’ of the places, which was added to each place in the dataset under the 'review_topics' key. 
+
+Dataset Sample:
+```
+{
+  "formatted_address": "Brooklyn, NY 11201, USA",
+  "geometry": {
+    "location": {
+      "lat": 40.6896147,
+      "lng": -73.9858984
+    },
+    "viewport": {
+      "south": 40.6882965197085,
+      "west": -73.9872249802915,
+      "north": 40.6909944802915,
+      "east": -73.98452701970848
+    }
+  },
+  "name": "Brooklyn",
+  "place_id": "ChIJq1RGWExawokRC5VK08ax-Ds",
+  "reviews": [
+    {
+      "author_name": "hisham nofal",
+      "author_url": "https://www.google.com/maps/contrib/114083506813599492082/reviews",
+      "language": "en",
+      "profile_photo_url": "https://lh3.ggpht.com/-2hGHNr4CZDQ/AAAAAAAAAAI/AAAAAAAAAAA/CN_PCdB3E8E/s128-c0x00000000-cc-rp-mo-ba6/photo.jpg",
+      "rating": 4,
+      "relative_time_description": "11 months ago",
+      "text": "For bus is good",
+      "time": 1538667162
+    }
+  ],
+  "types": [
+    "transit_station",
+    "point_of_interest",
+    "establishment"
+  ],
+  "url": "https://maps.google.com/?cid=4321399309968512267",
+  "html_attributions": []
+}ß
+
+```
 
 ### 2.2 Web Front End - View
 
@@ -181,14 +226,20 @@ The topic model was used to expand the dataset by adding a count of the review t
 ### 2.5 Other 
 
 #### 2.5.1 Query Expansion
+Project member has experimented using query expansion using Word2Vec word embedding function in Gensim module. The function first will be trained for reviews to create word vectors. Result then will be saved into a *.kv key vector file. Then, the query expansion will look for similar word based on the vectors. The top N similar word then will be added to original query.
 
-#### 2.5.2 Word Embedding
+The inital intention of having query expansion was to enhance search result for a single word query. However, after observation, the function will expand query with paradigmatic relation. This implementation may not work well for a specific search, for example: searching "Japan" will expand the query to "Japan Philadelphia Buddhist"
 
-#### 2.5.3 Pseudo Relevance Feedback
+Possible improvement could be using syntagmatic relation function, or train the data using more generic corpus.
+
+#### 2.5.2 Pseudo Relevance Feedback
+Other experiment we tested was implementing pseudo relevance feedback. This implemented by running original ranking function (BM25), then take top N result, then take topic for this top N model, and expand that to the original query. After testing we found that the topic word was usually more generic/ background word, therefore did not further enhance query function.s
+
 
 ### 2.6 Future extension and improvement
 
 - Expand the dataset or test on different dataset
+- Using more scalable database, such as NoSQL DB
 - Performance measurement of the software compared to other available services
 - Test and find suitable ranking algorithm 
 - Explore different topic model parameters
@@ -211,7 +262,7 @@ pip install nltk
 
 pip install gensim
 
-pip install space
+pip install spacy
 
 python -m spacy download en
 

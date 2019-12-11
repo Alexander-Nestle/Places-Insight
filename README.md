@@ -268,6 +268,11 @@ python -m spacy download en
 
 pip install pyLDAvis
 ```
+Alternatively, you can also use the `requirements.txt` file
+
+```
+pip install -r requirements.txt
+```
 
 2. Download required packages & resources
 
@@ -290,6 +295,7 @@ Brief description of contribution of each team member in case of a multi-person 
 - Query Expansion
 - Project proposal preparation, project documentation
 - Project presentation
+- Deployment to cloud app/ Heroku
 
 #### Alexander Nestle - nestle2@illinois.edu
 - Dataset scraping collection

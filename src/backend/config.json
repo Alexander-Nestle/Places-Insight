@@ -1,7 +1,0 @@
-{
-  "db_type" : "memorydb",
-  "data_file" : "dataset.json",
-  "index_file" : "dataindex.json",
-  "doc_file" : "datadoc.json",
-  "meta_file" : "datameta.json"
-}

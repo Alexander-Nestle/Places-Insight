@@ -1,4 +1,7 @@
-# Places Insights
+# Places Insight
+
+![Banner](/doc/banner.png)
+
 ### Natural Language Search Engine for Places
 Final Project for CS410: Text Information Analytics at the University of Illinois at Urbana-Champaign
 
@@ -13,6 +16,8 @@ An overview of the function of the code
 The goal of this project is to create a search engine implementation that will allow users to query a database of businesses, places, and parks (which will be referred to as ‘places’ within this document) using natural language attributes such as ‘child friendly’, ‘Italian food’, or ‘beautiful building’ in order to quickly receive relevant places
 
 User will be interfacing with a query input.  The user entered query will then be run through a BM25 ranking algorithm that includes topic model weighting to return ranked relevant places to the user.
+
+![Software Architecture](/doc/Architecture.png)
 
 ### 1.2 Use Case
 
@@ -30,6 +35,10 @@ Other query may return the most relevant places based on the keyword, or may not
 
 The possible end user of this software may includes visitor or local resident of a certain place that looking for places recommendation. As this software provides basic functionality of searching places by natural languages, organizations such as regional government or business place owner may also reuse the software based on specific use case
 
+![Home](/doc/screenshot1.png)
+
+![Search Result](/doc/screenshot2.png)
+
 ## 2. Software Implementation
 Documentation of how the software is implemented with sufficient detail so that others can have a basic understanding of your code for future extension or any further improvement.
 
@@ -44,6 +53,7 @@ A few data cleansing tasks has been done to the initial dataset to ensure there 
 The dataset information was expanded by using topic modeling to create the ‘queryable attributes’ of the places, which was added to each place in the dataset under the 'review_topics' key. 
 
 Dataset Sample:
+
 ```
 {
   "formatted_address": "Brooklyn, NY 11201, USA",
@@ -223,6 +233,8 @@ The topic model was created using the LDA algorithm provided by the Gensim libra
 
 The topic model was used to expand the dataset by adding a count of the review topics to each place and provide weighting to the BM25 ranking. The topic model weighting score is calculated by first classifying the query and taking the ratio of how many reviews of the place mention the query topic (c) over the total number of reviews (n).  The final weighted score is (1 + (c/n)) * BM25.  Code for topic model utilization can be found in TopicModelService.py.
 
+![Topic Model](/doc/TopicModel.png)
+
 ### 2.5 Other 
 
 #### 2.5.1 Query Expansion
@@ -255,37 +267,44 @@ Documentation of the usage of the software including either documentation of usa
 Note: Application should be run with Python 3.
 
 1. Install required python modules
-```
-pip install flask
+    ```
+    pip install flask
 
-pip install nltk
+    pip install nltk
 
-pip install gensim
+    pip install gensim
 
-pip install spacy
+    pip install spacy
 
-python -m spacy download en
+    python -m spacy download en
 
-pip install pyLDAvis
-```
-Alternatively, you can also use the `requirements.txt` file
-
-```
-pip install -r requirements.txt
-```
-
+    pip install pyLDAvis
+    ```
+    Alternatively, you can also use the `requirements.txt` file
+    ```
+    pip install -r requirements.txt
+    ```
+    
 2. Download required packages & resources
-
+   It is recommended to download following nltk packages prior to launching app.py. If not, the app.py will automatically download them in program during launching on a fresh setup, and this may take some time to finish
+    ```
+    python
+    import nltk
+    nltk.download("punkt")
+    nltk.download("stopwords")
+    ```
+   
 3. Run Server Applications 
-```
-cd ./src
-python app.py
-```
-
+    ```
+    cd ./src
+    python app.py
+    ```
+    
 4. Using web browser, launch http://127.0.0.1:5000/
-Note: Supported Browser
 
-Alternatively, we also provide services through this URL:
+   Note: Supported Browser
+   
+   Alternatively, we also provide services through this URL: https://infinite-harbor-32742.herokuapp.com/
 
 ## 4. Team contribution
 Brief description of contribution of each team member in case of a multi-person team

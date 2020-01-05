@@ -1,0 +1,86 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" href="/static/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/main.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="{{ url_for("home") }}">
+            <img src="/static/img/logo_light.png" height="40px" width="206px">
+        </a>
+        <div class="collapse navbar-collapse" id="navbarColor01">
+            <ul class="navbar-nav mr-auto">
+            </ul>
+            <form method="POST" class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="Looking for..." id="searchbox"
+                    name="searchbox">
+                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+    </nav>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for("home") }}">Home</a></li>
+        <li class="breadcrumb-item active">Results</li>
+    </ol>
+    <div class="container-fluid">
+        <h1>Search Results for: <span class="text-primary">{{ querystr }}</span></h1>
+        <h5>Total Retrieved: {{ resultlen }} </h5>
+        <hr> 
+        {% set rescount = namespace(a=0) %} 
+        {% for res in resultlist %}
+        <div class="card border-primary mb-3 center-card" style="width: 85%;">
+            <div class="card-body">
+                <h4 class="card-title">{{ res["name"] }}</h4>
+                <h6 class="text-muted">Topics: 
+                    {% for topic in res["review_topics"] %}
+                        <span class="badge badge-pill badge-primary">{{ topic["topic"] }}</span>
+                    {% endfor %}
+                </h6>
+                <ul class="nav nav-tabs" data-tabs="tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#info{{res["place_id"]}}">Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#reviews{{res["place_id"]}}">Reviews</a>
+                    </li>
+                </ul>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade active show" id="info{{res["place_id"]}}">
+                        <div style="float: left;">
+                            <p class="card-text"><strong>Address: </strong> {{ res["formatted_address"] }}
+                            </p>
+                            <a href="{{ res["url"] }}">More Info</a>
+                        </div>
+                        <iframe
+                            src="http://maps.google.com/maps?q={{res["geometry"]["location"]["lat"]}}, {{res["geometry"]["location"]["lng"]}}&z=15&output=embed"
+                            width="360" height="270" frameborder="0" style="border:1; float: right;"></iframe>
+                    </div>
+                    <div class="tab-pane fade" id="reviews{{res["place_id"]}}">
+                        {% for rev in res["reviews"] %}
+                        <div class="card border-secondary mb-3 center-card" style="width: 85%;">
+                            <div class="card-header"><img src="{{rev["profile_photo_url"]}}" class="rounded-circle icon-36"> <a
+                                    href="{{rev["author_url"]}}">{{rev["author_name"]}}</a></div>
+                            <div class="card-body">
+                                <p class="card-text"><strong>Rating: </strong>{{rev["rating"]}}</p>
+                                <p class="card-text"><strong>Posted: </strong>{{rev["relative_time_description"]}}</p>
+                                <p class="card-text"><strong>Review: </strong>{{rev["text"]}}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

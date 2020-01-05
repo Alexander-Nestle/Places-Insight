@@ -1,0 +1,59 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" href="/static/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        function getBackground() {
+            var imgUrlList = [
+                "https://live.staticflickr.com/4273/34456336990_9c201acb1a_6k.jpg",
+                "https://live.staticflickr.com/2928/14117602520_e739813345_k.jpg",
+                "https://live.staticflickr.com/973/28003852188_2068985803_k.jpg",
+                "https://live.staticflickr.com/4192/34710938741_4308c576d0_k.jpg",
+                "https://live.staticflickr.com/270/20044792128_f4d0043381_k.jpg",
+                "https://live.staticflickr.com/4825/46160145302_4286499148_k.jpg",
+                "https://live.staticflickr.com/4623/25460397307_c278ce67dc_k.jpg"
+            ]
+            var max = imgUrlList.length - 1
+            var i = Math.floor(Math.random() * (max + 1));
+            document.getElementById("screen-background").src = imgUrlList[i]
+        }
+    </script>
+</head>
+<body>
+    <img id="screen-background" src="" />
+    <div class="container-fluid" style="padding-top: 10%;">
+        <form method="POST">
+            <div class="row">
+                <div class="col-sm-12 col-md-12 col-lg-12">
+                    <img src="/static/img/logo.png" id="home-logo">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-8 col-md-8 col-lg-8 offset-md-1 offset-sm-1 offset-lg-1">
+                    <h2 style="color: white">Search Tourist Site, Restaurant, Hotel ...</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-9 col-md-9 col-lg-9 offset-md-1 offset-sm-1 offset-lg-1"
+                    style="padding-right: 0%;">
+                    <input class="form-control form-control-lg" type="text" placeholder="Looking for ..."
+                        id="searchbox" name="searchbox">
+                </div>
+                <div class="col-sm-1 col-md-1 col-lg-1" style="padding-left: 0%;">
+                    <button class="btn btn-primary btn-lg" type="submit" style="height: 100%;">
+                        <i class="fa fa-search fa-lg" aria-hidden="true" title="Search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    </div>
+</body>
+<script>
+    getBackground()
+</script>
+</html>
